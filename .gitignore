@@ -1,3 +1,10 @@
+# LEAP
+LEAP/LEAP_data/
+LEAP/__pycache__/
+LEAP/.ipynb_checkpoints
+LEAP/log
+
+
 miso_tutorial_data/
 
 # Byte-compiled / optimized / DLL files

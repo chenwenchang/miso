@@ -560,3 +560,38 @@ def get_features(img,locs,rad,pixel_size_raw,pixel_size=0.5,pretrained=True,devi
   else:
     cls_sub2 = cls_sub1[(locs1['4']/16).round().astype('int'), (locs1['5']/16).round().astype('int'), :]
   return cls_sub2
+
+def get_full_features(img,locs,rad,pixel_size_raw,pixel_size=0.5,pretrained=True,device='cpu'):
+  scale = pixel_size_raw / pixel_size
+  print('Scaling image')
+  img = rescale_image(img, scale = scale)
+  rad = rad*scale
+  locs1 = locs.copy()
+  locs1['4'] = locs1['4']*scale
+  locs1['5'] = locs1['5']*scale
+  print('Preprocessing image')
+  img = preprocess(img)
+  #mask = compute_tissue_mask(img)
+  #mask = remove_border(mask)
+  print('Adjusting margins')
+  img = adjust_margins(img, pad=256, pad_value=255)
+  #img[~mask] = 0
+  #mask = shrink_mask(mask, size=256)
+  #mask = mask[..., np.newaxis].astype(np.uint8) * 255
+  #img = np.concatenate([img, mask], -1)
+  #print('Extracting image features')
+  emb_cls, emb_sub = get_embeddings_shift(img, pretrained=True, device=device)
+  embs = dict(cls=emb_cls, sub=emb_sub)
+  print('Smoothing embeddings')
+  embs = smoothen_embeddings(embs, size=16, kernel='uniform', groups=['cls'], method='cv', device=device)
+  embs = smoothen_embeddings(embs, size=4, kernel='uniform', groups=['sub'], method='cv', device=device)
+  #match_foregrounds(embs)
+  #adjust_weights(embs)  # use uniform weights by default
+  cls1 = rearrange(emb_cls, 'c h w -> h w c')
+  sub1 = rearrange(emb_sub, 'c h w -> h w c')
+  cls_sub1 = np.concatenate((cls1, sub1), 2)
+  if rad>16:
+    cls_sub2 = np.stack([rearrange(cls_sub1[(int(np.ceil((locs1['4'][i]-rad)/16))):(int(np.floor((locs1['4'][i]+rad)/16))),(int(np.ceil((locs1['5'][i]-rad)/16))):(int(np.floor((locs1['5'][i]+rad)/16)))], 'h w c -> (h w) c').mean(0) for i in range(locs1.shape[0])])
+  else:
+    cls_sub2 = cls_sub1[(locs1['4']/16).round().astype('int'), (locs1['5']/16).round().astype('int'), :]
+  return cls_sub1

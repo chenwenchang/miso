@@ -16,9 +16,10 @@ setup(
   author_email="kpcoleman87@gmail.com",
   packages=find_packages(),
   #include_package_data=True,
-  python_requires="==3.7.*",
+  # python_requires=">=3.7.*",
   package_data = {'miso': ['checkpoints/*.pth'],},
-  install_requires=["scikit-learn==1.0.2","scikit_image==0.19.3","torch==1.13.1","torchvision==0.14.1","numpy==1.21.6","Pillow>=6.1.0","opencv-python==4.6.0.66","scipy==1.7.3","einops==0.6.0","scanpy==1.9.1","tqdm==4.64.1"],
+  # install_requires=["scikit-learn==1.0.2","scikit_image==0.19.3","torch==1.13.1","torchvision==0.14.1","numpy==1.21.6","Pillow>=6.1.0","opencv-python==4.6.0.66","scipy==1.7.3","einops==0.6.0","scanpy==1.9.1","tqdm==4.64.1"],
+  install_requires=["scikit-learn","scikit_image","torch","torchvision","numpy","Pillow>=6.1.0","opencv-python","scipy","einops","scanpy","tqdm"],
   classifiers=[
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
